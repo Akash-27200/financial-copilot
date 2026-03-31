@@ -7,7 +7,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
-    CORS_ORIGINS: str = "http://localhost:4200"
+    CORS_ORIGINS: str = "http://localhost:4200"  # Set via env var in production (comma-separated for multiple origins)
     LOG_LEVEL: str = "INFO"
     MAX_FILE_SIZE_MB: int = 10
 
