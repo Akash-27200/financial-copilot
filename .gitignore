@@ -1,0 +1,44 @@
+# ========================
+# Environment & Secrets
+# ========================
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# ========================
+# Python / Backend
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+backend/logs/
+*.log
+
+# ========================
+# Node / Angular Frontend
+# ========================
+node_modules/
+frontend/dist/
+frontend/.angular/
+.angular/
+
+# ========================
+# IDE & OS
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Uploaded files
+# ========================
+*.pdf

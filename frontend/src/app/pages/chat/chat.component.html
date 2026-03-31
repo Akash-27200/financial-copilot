@@ -1,0 +1,95 @@
+<div class="chat-page">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div>
+        <h1>AI Financial Copilot</h1>
+        <p>Ask anything about your finances</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Area -->
+  <div class="messages-area" #messagesContainer>
+    @for (msg of messages(); track msg.timestamp) {
+      <div class="message-row" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
+        @if (msg.role === 'assistant') {
+          <div class="avatar ai-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+        }
+        <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'assistant'">
+          <div class="message-content">{{ msg.content }}</div>
+          @if (msg.meta) {
+            <div class="message-meta">
+              <span>{{ msg.meta.response_time_ms }}ms</span>
+              <span>{{ msg.meta.chunks_used }} chunks</span>
+              <span>~{{ msg.meta.tokens_sent }} tokens</span>
+            </div>
+          }
+        </div>
+        @if (msg.role === 'user') {
+          <div class="avatar user-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Typing Indicator -->
+    @if (isLoading()) {
+      <div class="message-row assistant">
+        <div class="avatar ai-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="message-bubble ai-bubble typing-bubble">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (errorMessage()) {
+      <div class="error-banner animate-fade-in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Suggested Prompts (show only if no user messages yet) -->
+    @if (messages().length <= 1) {
+      <div class="suggestions">
+        <p class="suggestions-label">Try asking:</p>
+        <div class="suggestions-grid">
+          @for (prompt of suggestedPrompts; track prompt) {
+            <button class="suggestion-chip" (click)="sendMessage(prompt)">
+              {{ prompt }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-area">
+    <div class="input-wrapper">
+      <input
+        #messageInput
+        type="text"
+        [(ngModel)]="inputMessage"
+        (keydown)="onKeyDown($event)"
+        placeholder="Ask about your finances..."
+        [disabled]="isLoading()"
+        id="chat-input"
+      />
+      <button class="send-btn" (click)="sendMessage()" [disabled]="isLoading() || !inputMessage.trim()" id="send-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <h1 class="page-title">Financial Dashboard</h1>
+    <p class="page-subtitle">Your spending at a glance</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading insights...</p>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-state animate-fade-in">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p>{{ errorMessage() }}</p>
+    </div>
+  }
+
+  @if (insights()) {
+    <!-- Summary Cards -->
+    <div class="summary-grid animate-fade-in-up">
+      <div class="summary-card income">
+        <div class="card-icon green-bg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </div>
+        <div>
+          <div class="card-label">Total Income</div>
+          <div class="card-value green">₹{{ insights()!.total_income.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</div>
+        </div>
+      </div>
+      <div class="summary-card expense">
+        <div class="card-icon red-bg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </div>
+        <div>
+          <div class="card-label">Total Expenses</div>
+          <div class="card-value red">₹{{ insights()!.total_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</div>
+        </div>
+      </div>
+      <div class="summary-card net">
+        <div class="card-icon blue-bg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        </div>
+        <div>
+          <div class="card-label">Net Balance</div>
+          <div class="card-value" [class.green]="insights()!.net_balance >= 0" [class.red]="insights()!.net_balance < 0">
+            ₹{{ insights()!.net_balance.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}
+          </div>
+        </div>
+      </div>
+      <div class="summary-card savings">
+        <div class="card-icon purple-bg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
+        </div>
+        <div>
+          <div class="card-label">Savings Rate</div>
+          <div class="card-value purple">{{ savingsRate }}%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-row animate-fade-in-up" style="animation-delay: 0.1s">
+      <div class="chart-card">
+        <h3>Income vs Expenses</h3>
+        <div class="chart-container">
+          <canvas #incomeExpenseChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card wide">
+        <h3>Spending by Category</h3>
+        <div class="chart-container">
+          <canvas #categoryChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-row animate-fade-in-up" style="animation-delay: 0.2s">
+      <div class="chart-card full">
+        <h3>Monthly Trends</h3>
+        <div class="chart-container">
+          <canvas #trendChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Expenses -->
+    @if (insights()!.top_expenses.length > 0) {
+      <div class="section animate-fade-in-up" style="animation-delay: 0.3s">
+        <h3 class="section-title">Top Expenses</h3>
+        <div class="top-expenses-grid">
+          @for (exp of insights()!.top_expenses.slice(0, 5); track exp.description; let i = $index) {
+            <div class="expense-item">
+              <div class="expense-rank">{{ i + 1 }}</div>
+              <div class="expense-details">
+                <div class="expense-desc">{{ exp.description }}</div>
+                <div class="expense-meta">{{ exp.date }} · {{ exp.category }}</div>
+              </div>
+              <div class="expense-amount">₹{{ exp.amount.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Unusual Spending -->
+    @if (insights()!.unusual_spending.length > 0) {
+      <div class="section animate-fade-in-up" style="animation-delay: 0.4s">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#f59e0b"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Unusual Spending Detected
+        </h3>
+        <div class="top-expenses-grid">
+          @for (u of insights()!.unusual_spending; track u.description) {
+            <div class="expense-item warning">
+              <div class="expense-details">
+                <div class="expense-desc">{{ u.description }}</div>
+                <div class="expense-meta">{{ u.date }} · {{ u.category }} · Avg: ₹{{ u.avg_for_category }}</div>
+              </div>
+              <div class="expense-amount red">₹{{ u.amount.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

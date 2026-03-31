@@ -1,0 +1,126 @@
+<div class="upload-page">
+  <div class="page-header">
+    <h1 class="page-title">Upload Statement</h1>
+    <p class="page-subtitle">Upload your bank statement PDF to get AI-powered financial insights</p>
+  </div>
+
+  <!-- Upload Zone -->
+  @if (!uploadResult()) {
+    <div class="upload-card animate-fade-in-up">
+      <div class="drop-zone"
+           [class.dragging]="isDragging()"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)"
+           (click)="fileInput.click()"
+           id="drop-zone">
+        <input type="file" #fileInput accept=".pdf" (change)="onFileSelect($event)" hidden id="file-input" />
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="drop-text">
+          <span class="drop-title">Drop your PDF here</span>
+          <span class="drop-sub">or click to browse files</span>
+        </div>
+        <div class="drop-hint">Supports bank statements up to 10MB</div>
+      </div>
+
+      @if (selectedFile()) {
+        <div class="selected-file animate-fade-in">
+          <div class="file-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="file-icon"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div>
+              <div class="file-name">{{ selectedFile()!.name }}</div>
+              <div class="file-size">{{ formatBytes(selectedFile()!.size) }}</div>
+            </div>
+          </div>
+          <button class="btn-upload" (click)="upload()" [disabled]="isUploading()" id="upload-btn">
+            @if (isUploading()) {
+              <span class="spinner"></span> Processing...
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload & Analyze
+            }
+          </button>
+        </div>
+      }
+
+      @if (errorMessage()) {
+        <div class="error-msg animate-fade-in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          {{ errorMessage() }}
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Success Result -->
+  @if (uploadResult()) {
+    <div class="results animate-fade-in-up">
+      <div class="success-header">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <h2>Analysis Complete!</h2>
+          <p>{{ uploadResult()!.file_name }}</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Transactions</div>
+          <div class="stat-value">{{ uploadResult()!.total_transactions }}</div>
+        </div>
+        <div class="stat-card income">
+          <div class="stat-label">Total Income</div>
+          <div class="stat-value">₹{{ uploadResult()!.total_income.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</div>
+        </div>
+        <div class="stat-card expense">
+          <div class="stat-label">Total Expenses</div>
+          <div class="stat-value">₹{{ uploadResult()!.total_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-primary" (click)="goToChat()" id="goto-chat-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Chat with AI
+        </button>
+        <button class="btn-secondary" (click)="goToDashboard()" id="goto-dashboard-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          View Dashboard
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Features -->
+  <div class="features-grid animate-fade-in-up" style="animation-delay: 0.2s">
+    <div class="feature-card">
+      <div class="feature-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <h3>AI-Powered Chat</h3>
+      <p>Ask questions about your spending in natural language</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
+      </div>
+      <h3>Visual Dashboard</h3>
+      <p>Interactive charts showing income, expenses, and trends</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <h3>CSV Export</h3>
+      <p>Download your transactions as a spreadsheet</p>
+    </div>
+  </div>
+</div>
