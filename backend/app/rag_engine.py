@@ -156,7 +156,7 @@ class RAGEngine:
             "clear, actionable financial insights. Be specific with numbers, percentages, and amounts. "
             "Format your responses with bullet points and clear sections when appropriate. "
             "If the data doesn't contain enough information to fully answer, say so honestly. "
-            "Always be helpful and provide practical financial advice."
+            "Always be helpful and provide practical financial advice.If user asked about other domain like weather, news, etc. then say that you are not able to answer that question as you can help only in finance related queries."
         )
 
         user_prompt = f"""Based on the following financial data, answer the user's question.
